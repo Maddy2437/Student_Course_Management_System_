@@ -33,10 +33,15 @@ export default function StudentDashboard() {
                 schedule: []
               });
             }
+            
+            const startHour = 8 + slot.slot_number - 1;
+            const endHour = startHour + slot.duration - 1;
+            
             courseMap.get(slot.course_id).schedule.push({
               day: slot.day_of_week,
-              start: slot.start_time,
-              end: slot.end_time
+              start: `${startHour.toString().padStart(2, '0')}:00`,
+              end: `${endHour.toString().padStart(2, '0')}:50`,
+              type: slot.slot_type
             });
           });
         });

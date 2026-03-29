@@ -16,7 +16,7 @@ export async function GET() {
         co.offering_id, co.course_id, co.semester_id, co.teacher_id, co.max_capacity, co.current_enrolled,
         c.course_name, s.name as semester_name, u.name as teacher_name,
         (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', ts.slot_id, 'day', ts.day_of_week, 'start', ts.start_time, 'end', ts.end_time))
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('id', ts.slot_id, 'day', ts.day_of_week, 'slot', ts.slot_number, 'duration', ts.duration, 'type', ts.slot_type))
           FROM time_slots ts
           WHERE ts.offering_id = co.offering_id
         ) as time_slots
@@ -61,8 +61,8 @@ export async function POST(req: Request) {
     if (time_slots && Array.isArray(time_slots) && time_slots.length > 0) {
       for (const slot of time_slots) {
         await connection.query(
-          "INSERT INTO time_slots (offering_id, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?)",
-          [offeringId, slot.day, slot.start, slot.end]
+          "INSERT INTO time_slots (offering_id, day_of_week, slot_number, duration, slot_type) VALUES (?, ?, ?, ?, ?)",
+          [offeringId, slot.day, slot.slot, slot.duration, slot.type]
         );
       }
     }

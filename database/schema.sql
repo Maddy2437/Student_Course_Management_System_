@@ -80,14 +80,15 @@ CREATE TABLE time_slots (
     slot_id         INT AUTO_INCREMENT PRIMARY KEY,
     offering_id     INT NOT NULL,
     day_of_week     ENUM('MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY','SUNDAY') NOT NULL,
-    start_time      TIME NOT NULL,
-    end_time        TIME NOT NULL,
+    slot_number     INT NOT NULL,
+    duration        INT NOT NULL DEFAULT 1 CHECK (duration IN (1, 2, 3)),
+    slot_type       ENUM('LECTURE', 'TUTORIAL', 'PRACTICAL') NOT NULL DEFAULT 'LECTURE',
 
     FOREIGN KEY (offering_id) REFERENCES course_offerings(offering_id) ON DELETE CASCADE ON UPDATE CASCADE,
 
     INDEX idx_slots_offering (offering_id),
     INDEX idx_slots_day (day_of_week),
-    CONSTRAINT chk_time_order CHECK (end_time > start_time)
+    CONSTRAINT chk_valid_slot CHECK (slot_number >= 1 AND slot_number <= 12 AND slot_number + duration - 1 <= 12)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================
@@ -138,4 +139,4 @@ INSERT INTO system_settings (id) VALUES (1);
 
 -- Seed a master admin (update google_id and email after first Google sign-in)
 INSERT INTO users (email, name, role, google_id) VALUES
-('admin@goa.bits-pilani.ac.in', 'System Admin', 'ADMIN', 'SEED_ADMIN_GOOGLE_ID');
+('f20240478@goa.bits-pilani.ac.in', 'System Admin', 'ADMIN', 'SEED_ADMIN_GOOGLE_ID');

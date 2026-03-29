@@ -115,6 +115,20 @@ export default function AdminCourses() {
     } catch (err) { alert("Error"); }
   };
 
+  const handleSetActiveSemester = async (semester_id: number) => {
+    try {
+      const res = await fetch("/api/admin/semesters", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ semester_id, is_current: true })
+      });
+      const json = await res.json();
+      if (res.ok) {
+        fetchData(); // Refresh list to reflect changes visually
+      } else alert(json.error);
+    } catch (err) { alert("Error setting active semester"); }
+  };
+
   const handleCreateOffering = async (e: React.FormEvent) => {
     e.preventDefault();
     // Validate time slots
@@ -141,11 +155,11 @@ export default function AdminCourses() {
   const addTimeSlot = () => {
     setNewOffering({
       ...newOffering,
-      time_slots: [...newOffering.time_slots, { day: 'MONDAY', start: '08:00', end: '09:00' }]
+      time_slots: [...newOffering.time_slots, { day: 'MONDAY', slot: 1, duration: 1, type: 'LECTURE' }]
     });
   };
 
-  const updateTimeSlot = (index: number, field: string, value: string) => {
+  const updateTimeSlot = (index: number, field: string, value: string | number) => {
     const slots = [...newOffering.time_slots];
     slots[index][field] = value;
     setNewOffering({ ...newOffering, time_slots: slots });
@@ -235,7 +249,13 @@ export default function AdminCourses() {
                   {semesters.map(s => (
                      <div key={s.semester_id} className={`p-4 border rounded-xl flex justify-between items-center ${s.is_current ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-muted/20'}`}>
                        <p className="font-bold">{s.name}</p>
-                       {s.is_current && <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest px-3 py-1 bg-emerald-500/20 rounded-full">Active</span>}
+                       <div className="flex items-center gap-3">
+                         {s.is_current ? (
+                           <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest px-3 py-1 bg-emerald-500/20 rounded-full">Active</span>
+                         ) : (
+                           <button onClick={() => handleSetActiveSemester(s.semester_id)} className="text-xs font-bold bg-primary/10 text-primary px-3 py-1 rounded hover:bg-primary hover:text-primary-foreground transition-colors">Set Active</button>
+                         )}
+                       </div>
                      </div>
                   ))}
                 </div>
@@ -251,19 +271,19 @@ export default function AdminCourses() {
                 <form onSubmit={handleCreateOffering} className="space-y-4">
                   
                   <div><label className="text-xs font-semibold mb-1 block">Semester</label>
-                  <select required value={newOffering.semester_id} onChange={e=>setNewOffering({...newOffering, semester_id: e.target.value})} className="w-full border rounded-lg p-2 text-sm">
+                  <select required value={newOffering.semester_id} onChange={e=>setNewOffering({...newOffering, semester_id: e.target.value})} className="w-full border bg-background text-foreground rounded-lg p-2 text-sm">
                     <option value="">Select Semester...</option>
                     {semesters.map(s=><option key={s.semester_id} value={s.semester_id}>{s.name} {s.is_current ? '(Active)' : ''}</option>)}
                   </select></div>
 
                   <div><label className="text-xs font-semibold mb-1 block">Course</label>
-                  <select required value={newOffering.course_id} onChange={e=>setNewOffering({...newOffering, course_id: e.target.value})} className="w-full border rounded-lg p-2 text-sm">
+                  <select required value={newOffering.course_id} onChange={e=>setNewOffering({...newOffering, course_id: e.target.value})} className="w-full border bg-background text-foreground rounded-lg p-2 text-sm">
                     <option value="">Select Course...</option>
                     {courses.map(c=><option key={c.course_id} value={c.course_id}>{c.course_id} - {c.course_name}</option>)}
                   </select></div>
 
                   <div><label className="text-xs font-semibold mb-1 block">Assign Teacher</label>
-                  <select required value={newOffering.teacher_id} onChange={e=>setNewOffering({...newOffering, teacher_id: e.target.value})} className="w-full border rounded-lg p-2 text-sm">
+                  <select required value={newOffering.teacher_id} onChange={e=>setNewOffering({...newOffering, teacher_id: e.target.value})} className="w-full border bg-background text-foreground rounded-lg p-2 text-sm">
                     <option value="">Select Teacher...</option>
                     {users.map(u=><option key={u.id} value={u.id}>{u.name} ({u.email})</option>)}
                   </select></div>
@@ -278,14 +298,21 @@ export default function AdminCourses() {
                        <button type="button" onClick={addTimeSlot} className="text-xs bg-primary/10 text-primary px-2 py-1 rounded font-semibold">+ Add Slot</button>
                     </div>
                     {newOffering.time_slots.map((slot: any, idx: number) => (
-                      <div key={idx} className="grid grid-cols-4 gap-2 mb-2 bg-background p-2 rounded border shadow-sm items-center">
-                        <select className="col-span-4 border rounded p-1 text-xs" value={slot.day} onChange={e=>updateTimeSlot(idx, 'day', e.target.value)}>
+                      <div key={idx} className="grid grid-cols-6 gap-2 mb-2 bg-background p-2 rounded border shadow-sm items-center">
+                        <select className="col-span-2 border bg-background text-foreground rounded p-1 text-[10px]" value={slot.day} onChange={e=>updateTimeSlot(idx, 'day', e.target.value)}>
                           <option value="MONDAY">Mon</option><option value="TUESDAY">Tue</option><option value="WEDNESDAY">Wed</option>
                           <option value="THURSDAY">Thu</option><option value="FRIDAY">Fri</option>
                         </select>
-                        <input type="time" required className="col-span-2 border rounded p-1 text-xs" value={slot.start} onChange={e=>updateTimeSlot(idx, 'start', e.target.value)} />
-                        <input type="time" required className="col-span-2 border rounded p-1 text-xs" value={slot.end} onChange={e=>updateTimeSlot(idx, 'end', e.target.value)} />
-                        <button type="button" onClick={()=>removeTimeSlot(idx)} className="col-span-4 text-[10px] text-destructive uppercase tracking-widest font-bold mt-1">Remove</button>
+                        <select className="col-span-1 border bg-background text-foreground rounded p-1 text-[10px]" value={slot.slot} onChange={e=>updateTimeSlot(idx, 'slot', Number(e.target.value))}>
+                          {[...Array(12)].map((_, i) => <option key={i+1} value={i+1}>S{i+1}</option>)}
+                        </select>
+                        <select className="col-span-1 border bg-background text-foreground rounded p-1 text-[10px]" value={slot.duration} onChange={e=>updateTimeSlot(idx, 'duration', Number(e.target.value))}>
+                          {[...Array(3)].map((_, i) => <option key={i+1} value={i+1}>{i+1}h</option>)}
+                        </select>
+                        <select className="col-span-1 border bg-background text-foreground rounded p-1 text-[10px]" value={slot.type} onChange={e=>updateTimeSlot(idx, 'type', e.target.value)}>
+                          <option value="LECTURE">Lec</option><option value="TUTORIAL">Tut</option><option value="PRACTICAL">Prac</option>
+                        </select>
+                        <button type="button" onClick={()=>removeTimeSlot(idx)} className="col-span-1 text-[10px] text-destructive uppercase tracking-widest font-bold mt-1">Del</button>
                       </div>
                     ))}
                     {newOffering.time_slots.length === 0 && <p className="text-xs text-muted-foreground text-center py-2">No time slots added. Students will need this for clash detection.</p>}
@@ -310,9 +337,14 @@ export default function AdminCourses() {
                        <div className="mt-4 md:mt-0 bg-muted/30 p-3 rounded-lg border border-border/50 text-xs space-y-1 min-w-[150px]">
                          <p className="font-bold uppercase tracking-wider text-[10px] text-muted-foreground mb-2 border-b pb-1">Schedule</p>
                          {o.time_slots && Array.isArray(o.time_slots) && o.time_slots.length > 0 ? (
-                           o.time_slots.map((ts: any) => (
-                             <p key={ts.id}>{ts.day.slice(0,3)}: {ts.start.slice(0,5)} - {ts.end.slice(0,5)}</p>
-                           ))
+                           o.time_slots.map((ts: any) => {
+                             if (!ts.slot) return null;
+                             const sh = 8 + ts.slot - 1;
+                             const eh = sh + ts.duration - 1;
+                             return (
+                               <p key={ts.id}>{ts.day.slice(0,3)} {ts.type.slice(0,3)}: S{ts.slot} ({sh}:00-{eh}:50)</p>
+                             );
+                           })
                          ) : <p className="italic text-muted-foreground">No schedule.</p>}
                        </div>
                      </div>

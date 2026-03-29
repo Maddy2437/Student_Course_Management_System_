@@ -21,11 +21,25 @@ export default function RegistrationPage() {
     try {
       const res = await fetch("/api/student/courses");
       const json = await res.json();
-      setData(json);
-
-      // Initialize cart with already ENROLLED courses from the server list
+      // Convert slot formats back to display start/end times
       if (json.courses) {
-        const enrolled = json.courses.filter((c: any) => c.enrollment_status === 'ENROLLED');
+        const mappedCourses = json.courses.map((c: any) => ({
+          ...c,
+          schedule: Array.isArray(c.schedule) ? c.schedule.map((s: any) => {
+            if (!s.slot) return s; // skip if null
+            const startHour = 8 + s.slot - 1;
+            const endHour = startHour + s.duration - 1;
+            return {
+              ...s,
+              start: `${startHour.toString().padStart(2, '0')}:00`,
+              end: `${endHour.toString().padStart(2, '0')}:50`
+            };
+          }) : []
+        }));
+        
+        setData({ ...json, courses: mappedCourses });
+
+        const enrolled = mappedCourses.filter((c: any) => c.enrollment_status === 'ENROLLED');
         setCart(enrolled);
       }
     } catch (err) {

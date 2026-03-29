@@ -15,7 +15,7 @@ export async function GET() {
   try {
     const query = `
       SELECT 
-        ts.day_of_week, ts.start_time, ts.end_time,
+        ts.day_of_week, ts.slot_number, ts.duration, ts.slot_type,
         c.course_id, c.course_name, c.department,
         u.name as teacher_name
       FROM enrollments e
@@ -25,7 +25,7 @@ export async function GET() {
       JOIN users u ON co.teacher_id = u.id
       JOIN semesters s ON co.semester_id = s.semester_id
       WHERE e.student_id = ? AND e.status = 'ENROLLED' AND s.is_current = TRUE
-      ORDER BY FIELD(ts.day_of_week, 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'), ts.start_time;
+      ORDER BY FIELD(ts.day_of_week, 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY'), ts.slot_number;
     `;
 
     const [schedule] = await pool.query<RowDataPacket[]>(query, [studentId]);

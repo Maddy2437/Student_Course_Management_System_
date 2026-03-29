@@ -72,8 +72,8 @@ export async function POST(req: Request) {
     // Check if any of the student's CURRENTLY ENROLLED time slots overlap with the REQUESTED offering's time slots
     const clashQuery = `
       SELECT 
-        ts1.day_of_week, ts1.start_time as req_start, ts1.end_time as req_end,
-        ts2.start_time as curr_start, ts2.end_time as curr_end,
+        ts1.day_of_week, ts1.slot_number as req_slot, ts1.duration as req_dur,
+        ts2.slot_number as curr_slot, ts2.duration as curr_dur,
         c.course_name as clashing_course
       FROM time_slots ts1
       JOIN time_slots ts2 ON ts1.day_of_week = ts2.day_of_week
@@ -86,7 +86,7 @@ export async function POST(req: Request) {
         AND e.status = 'ENROLLED'
         AND co.semester_id = ?  -- Only check clashes within the same semester
         AND (
-          (ts1.start_time < ts2.end_time AND ts1.end_time > ts2.start_time)
+          (ts1.slot_number < ts2.slot_number + ts2.duration AND ts2.slot_number < ts1.slot_number + ts1.duration)
         )
       LIMIT 1;
     `;

@@ -32,7 +32,7 @@ export async function GET() {
         u.name as teacher_name,
         e.status as enrollment_status,
         (
-          SELECT JSON_ARRAYAGG(JSON_OBJECT('day', ts.day_of_week, 'start', ts.start_time, 'end', ts.end_time))
+          SELECT JSON_ARRAYAGG(JSON_OBJECT('day', ts.day_of_week, 'slot', ts.slot_number, 'duration', ts.duration, 'type', ts.slot_type))
           FROM time_slots ts
           WHERE ts.offering_id = co.offering_id
         ) as schedule
