@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎓 Student Course Management System
 
-## Getting Started
+A modern, full-stack web application built to streamline the management of student records, course offerings, and academic data. Built with Next.js and
+TypeScript, this system provides a robust interface for handling educational institution operations.
 
-First, run the development server:
+## 🛠️ Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+* **Framework:** [Next.js](https://nextjs.org/) (Bootstrapped with `create-next-app`)
+* **Language:** [TypeScript](https://www.typescriptlang.org/)
+* **Styling:** CSS / PostCSS (Configured via `postcss.config.mjs`)
+* **Database:** Custom database integration (managed in the `/database` directory)
+* **Linting & Formatting:** ESLint (`eslint.config.mjs`)
+
+## 📂 Project Structure
+
+```text
+.
+├── database/               # Database schemas, migrations, or setup files
+├── public/                 # Static assets (images, fonts, etc.)
+├── src/                    # Main application source code (components, pages, API routes)
+├── eslint.config.mjs       # ESLint configuration
+├── next.config.ts          # Next.js configuration
+├── postcss.config.mjs      # PostCSS configuration
+├── tsconfig.json           # TypeScript configuration
+└── package.json            # Project dependencies and scripts
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚡ Quick Start
 
-## Learn More
+You can set up and run the development server by copying and pasting the following commands into your terminal:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# 1. Clone the repository
+git clone https://github.com/Sarthak-gupta-cpp/Student_Course_Management_System
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# 2. Navigate into the directory
+cd Student_Course_Management_System
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# 3. Install dependencies
+npm install
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 4. Start the development server
+npm run dev
+```
+Once the server is running, open http://localhost:3000 in your browser to see the application.
